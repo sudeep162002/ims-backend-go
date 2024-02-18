@@ -39,3 +39,7 @@ func Initialize() {
 	}
 	log.Println("Connected to MongoDB")
 }
+
+func GetClient() *mongo.Client {
+	return client
+}

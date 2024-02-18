@@ -23,6 +23,6 @@ func SetupHelloRoutes(r *gin.Engine) {
 		userroutes.GET("/get-users", middleware.Auth(), user_controllers.GetUsers)
 		userroutes.GET("/get-users/:id", middleware.Auth(), user_controllers.GetUsersById)
 		userroutes.POST("/insert-user", middleware.Auth(), user_controllers.InsertUser)
-		userroutes.PUT("/update-user/:id", middleware.Auth(), user_controllers.UpdateUserById)
+		userroutes.PUT("/update-user/:id", middleware.Auth(), user_controllers.UpdateUser)
 	}
 }
