@@ -2,6 +2,7 @@ package user_controllers
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/sudeep162002/ims-go-backend/db"
@@ -134,9 +135,16 @@ func InsertUser(c *gin.Context) {
 
 func UpdateUser(c *gin.Context) {
 	userID := c.Param("id")
-	fullName := c.PostForm("fullName")
 
-	if fullName == "" {
+	// Bind JSON body to modifiedUser struct
+	var modifiedUser model.User
+	if err := c.BindJSON(&modifiedUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
+		return
+	}
+
+	// Ensure that fullName is not empty
+	if modifiedUser.FullName == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Adding fullName is mandatory"})
 		return
 	}
@@ -144,27 +152,39 @@ func UpdateUser(c *gin.Context) {
 	client := db.GetClient()
 	collection := client.Database("users").Collection("users")
 
-	user := &model.User{}
-	err := collection.FindOne(c.Request.Context(), bson.M{"userId": userID, "fullName": fullName}).Decode(user)
+	// Fetch user corresponding to userID and modifiedUser.FullName
+	var dbUser model.User
+	filter := bson.M{"userId": userID, "fullName": modifiedUser.FullName}
+	err := collection.FindOne(c.Request.Context(), filter).Decode(&dbUser)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "User not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while getting db user", "details": err.Error()})
 		return
 	}
 
-	// Bind JSON body to user struct to update fields
-	if err := c.BindJSON(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body"})
-		return
-	}
+	// Update fields of dbUser with modifiedUser's fields
+	updateFields(&dbUser, &modifiedUser)
 
-	// Update user in database
-	filter := bson.M{"userId": userID, "fullName": fullName}
-	update := bson.M{"$set": user}
-	_, err = collection.UpdateOne(c.Request.Context(), filter, update)
+	// Save updated dbUser in the database
+	_, err = collection.ReplaceOne(c.Request.Context(), filter, dbUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error updating data", "error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating data in database", "details": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data successfully updated"})
+}
+
+func updateFields(dbUser *model.User, modifiedUser *model.User) {
+	// Get reflect.Value of dbUser and modifiedUser
+	dbUserValue := reflect.ValueOf(dbUser).Elem()
+	modifiedUserValue := reflect.ValueOf(modifiedUser).Elem()
+
+	// Iterate over fields of modifiedUser and update corresponding fields in dbUser
+	for i := 0; i < modifiedUserValue.NumField(); i++ {
+		fieldName := modifiedUserValue.Type().Field(i).Name
+		fieldValue := modifiedUserValue.Field(i)
+		if fieldValue.Interface() != reflect.Zero(fieldValue.Type()).Interface() {
+			dbUserValue.FieldByName(fieldName).Set(fieldValue)
+		}
+	}
 }
