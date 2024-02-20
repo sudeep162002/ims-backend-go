@@ -1,6 +1,6 @@
 # Istavrity Management System (IMS)
 
-IMS is a platform designed to efficiently handle the Istavrity of multiple families. It is built using TypeScript, Angular, Docker, GitHub Actions for CI/CD, and Docker Hub for development .
+IMS is a platform designed to efficiently handle the Istavrity of multiple families. It is built using TypeScript, Angular, Docker, GitHub Actions for CI/CD, and Docker Hub for development.
 
 ## Features
 
