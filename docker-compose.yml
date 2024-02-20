@@ -2,7 +2,11 @@ version: '3'
 
 services:
   ims-go-backend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_TAG=latest
     ports:
       - "${PORT}:3000"
     environment:
