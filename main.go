@@ -1,11 +1,9 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
 	db "github.com/sudeep162002/ims-go-backend/db"
 	"github.com/sudeep162002/ims-go-backend/middleware"
 	user_routes "github.com/sudeep162002/ims-go-backend/routes"
@@ -16,11 +14,6 @@ import (
 
 func main() {
 	r := gin.New()
-
-	// load env
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
 	// make db connection
 	db.Initialize()

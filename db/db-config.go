@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,10 +15,6 @@ var client *mongo.Client
 
 // Initialize initializes the MongoDB client.
 func Initialize() {
-	// Load environment variables from .env file
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
 	// Set client options
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URL"))
