@@ -22,7 +22,7 @@ VNUM1=${CURRENT_VERSION_PARTS[0]}
 VNUM2=${CURRENT_VERSION_PARTS[1]}
 VNUM3=${CURRENT_VERSION_PARTS[2]}
 
-# Increment version based on parameter
+# Increment version based on paramete
 case "$VERSION" in
   major) ((VNUM1++)); VNUM2=0; VNUM3=0;;
   minor) ((VNUM2++)); VNUM3=0;;
