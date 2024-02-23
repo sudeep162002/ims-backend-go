@@ -13,7 +13,7 @@ done
 git fetch --tags --prune --unshallow 2>/dev/null
 
 # Get the highest tag number and set initial version if not found
-CURRENT_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo "v1.1.1")
+CURRENT_VERSION=$(git describe --abbrev=0 --tags 3>/dev/null || echo "v1.1.1")
 echo "Current Version: $CURRENT_VERSION"
 
 # Parse version components
