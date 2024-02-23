@@ -2,64 +2,56 @@
 
 VERSION=""
 
-# get parameters
-while getopts v: flag
-do
+# Parse command-line options
+while getopts v: flag; do
   case "${flag}" in
     v) VERSION=${OPTARG};;
   esac
 done
 
-# get highest tag number, and add v0.1.0 if doesn't exist
-git fetch --prune --unshallow 2>/dev/null
-CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+# Fetch tags and prune
+git fetch --tags --prune --unshallow 2>/dev/null
 
-if [[ $CURRENT_VERSION == '' ]]
-then
-  CURRENT_VERSION='v1.1.1'
-fi
+# Get the highest tag number and set initial version if not found
+CURRENT_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo "v1.1.1")
 echo "Current Version: $CURRENT_VERSION"
 
-# replace . with space so can split into an array
-CURRENT_VERSION_PARTS=(${CURRENT_VERSION//./ })
-
-# get number parts
+# Parse version components
+IFS='.' read -r -a CURRENT_VERSION_PARTS <<<"${CURRENT_VERSION//v}"
 VNUM1=${CURRENT_VERSION_PARTS[0]}
 VNUM2=${CURRENT_VERSION_PARTS[1]}
 VNUM3=${CURRENT_VERSION_PARTS[2]}
 
-if [[ $VERSION == 'major' ]]
-then
-  VNUM1=v$((VNUM1+1))
-elif [[ $VERSION == 'minor' ]]
-then
-  VNUM2=$((VNUM2+1))
-elif [[ $VERSION == 'patch' ]]
-then
-  VNUM3=$((VNUM3+1))
-else
-  echo "No version type (https://semver.org/) or incorrect type specified, try: -v [major, minor, patch]"
-  exit 1
-fi
+# Increment version based on parameter
+case "$VERSION" in
+  major) ((VNUM1++)); VNUM2=0; VNUM3=0;;
+  minor) ((VNUM2++)); VNUM3=0;;
+  patch) ((VNUM3++));;
+  *)
+    echo "Invalid version type. Use: -v [major, minor, patch]"
+    exit 1
+    ;;
+esac
 
-# create new tag
-NEW_TAG="$VNUM1.$VNUM2.$VNUM3"
-echo "($VERSION) updating $CURRENT_VERSION to $NEW_TAG"
+# Create new tag
+NEW_TAG="v$VNUM1.$VNUM2.$VNUM3"
+echo "($VERSION) Updating $CURRENT_VERSION to $NEW_TAG"
 
-# get current hash and see if it already has a tag
-GIT_COMMIT=`git rev-parse HEAD`
-NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
+# Check if the current commit is already tagged
+GIT_COMMIT=$(git rev-parse HEAD)
+NEEDS_TAG=$(git describe --contains "$GIT_COMMIT" 2>/dev/null)
 
-# only tag if no tag already
+# Tag the current commit if no tag exists
 if [ -z "$NEEDS_TAG" ]; then
   echo "Tagged with $NEW_TAG"
-  git tag $NEW_TAG
+  git tag "$NEW_TAG"
   git push --tags
   git push
 else
   echo "Already a tag on this commit"
 fi
 
+# Set GitHub Actions output
 echo ::set-output name=git-tag::$NEW_TAG
 
 exit 0

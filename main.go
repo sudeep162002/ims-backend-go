@@ -42,6 +42,16 @@ func main() {
 		c.JSON(http.StatusOK, response)
 	})
 
+	r.GET("/ims-backend", func(c *gin.Context) {
+		// Create a JSON object
+		response := gin.H{
+			"message": "welcome to ims backend go version",
+		}
+
+		// Return the JSON response with a custom status code
+		c.JSON(http.StatusOK, response)
+	})
+
 	// health check route
 	r.GET("/health", func(c *gin.Context) {
 		// Create a JSON object
