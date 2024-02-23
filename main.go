@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -38,6 +39,7 @@ func main() {
 			"message": "welcome to ims backend go version",
 		}
 
+		fmt.Println(response)
 		// Return the JSON response with a custom status code
 		c.JSON(http.StatusOK, response)
 	})
@@ -47,7 +49,7 @@ func main() {
 		response := gin.H{
 			"message": "welcome to ims backend go version",
 		}
-
+		fmt.Println(response)
 		// Return the JSON response with a custom status code
 		c.JSON(http.StatusOK, response)
 	})
@@ -58,7 +60,7 @@ func main() {
 		response := gin.H{
 			"status": "ok",
 		}
-
+		fmt.Println(response)
 		// Return the JSON response with a custom status code
 		c.JSON(http.StatusOK, response)
 	})
