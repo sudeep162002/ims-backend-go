@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app with optimizations
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 # Stage 2: Create a minimal image to run the executable
 FROM alpine:latest
@@ -24,9 +24,6 @@ WORKDIR /app
 
 # Copy the built executable from the previous stage
 COPY --from=builder /app/main .
-
-# Expose port 3000 to the outside world
-EXPOSE 3000
 
 # Command to run the executable
 CMD ["./main"]
